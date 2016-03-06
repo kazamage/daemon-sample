@@ -1,0 +1,32 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(AbstractCompile)*.options*.encoding = 'UTF-8'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile fileTree(dir: "$projectDir/repository/wmq", include: '*.jar')
+    compile("org.apache.camel:camel-jms:$camelVersion") {
+        exclude module: 'commons-logging'
+    }
+    compile("org.apache.camel:camel-spring:$camelVersion") {
+        exclude module: 'commons-logging'
+    }
+    compile("org.springframework:spring-jms:$springVersion") {
+        exclude module: 'commons-logging'
+    }
+    compile "log4j:log4j:$log4jVersion"
+    compile "org.slf4j:slf4j-api:$slf4jVersion"
+    compile "org.slf4j:slf4j-log4j12:$slf4jVersion"
+    compile "org.slf4j:jcl-over-slf4j:$slf4jVersion"
+}
+
+task copyRuntimeLibs(type: Copy) {
+    into "$buildDir/libs"
+    from configurations.runtime
+}

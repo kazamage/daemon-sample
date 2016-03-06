@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  <camelContext xmlns="http://camel.apache.org/schema/spring">
+    <route id="route1">
+      <from uri="jms:queue:in" />
+      <log message="${body}" loggingLevel="ERROR" />
+      <to uri="jms:queue:out" />
+    </route>
+    <route id="route2">
+      <from uri="file:/C:/dev/data/input"/>
+      <to uri="file:/C:/dev/data/output"/>
+    </route>
+  </camelContext>
+  <bean id="connectionFactory" class="com.ibm.mq.jms.MQConnectionFactory">
+    <property name="queueManager" value="QueueManager" />
+    <property name="channel" value="Channel" />
+    <property name="hostName" value="localhost" />
+    <property name="port" value="1414" />
+    <property name="transportType" value="1" />
+  </bean>
+  <bean id="transactionManager" class="org.springframework.jms.connection.JmsTransactionManager">
+    <property name="connectionFactory" ref="connectionFactory" />
+    <property name="defaultTimeout" value="60" />
+  </bean>
+  <bean id="jmsConfig" class="org.apache.camel.component.jms.JmsConfiguration">
+    <property name="connectionFactory" ref="connectionFactory" />
+    <property name="transactionManager" ref="transactionManager" />
+    <property name="transacted" value="true" />
+    <property name="cacheLevelName" value="CACHE_CONNECTION" />
+    <property name="transactionTimeout" value="60" />
+  </bean>
+  <bean id="jmsComponent" class="org.apache.camel.component.jms.JmsComponent">
+    <property name="configuration" ref="jmsConfig" />
+  </bean>
+</beans>
